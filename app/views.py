@@ -1,5 +1,5 @@
-from app import app
-from flask import render_template, request
+from app import app, db
+from flask import render_template, request, redirect
 from app.models import ToDo
 
 
@@ -8,5 +8,23 @@ def index():  # put application's code here
     if request.method == "POST":
         task = request.form['content']
         new_task = ToDo(content = task)
+        try:
+            db.session.add(new_task)
+            db.session.commit()
+            return redirect('/')
+        except:
+            return "There was the error"
     else:
-        return render_template('index.html')
+        tasks = ToDo.query.order_by(ToDo.date_created).all()
+        return render_template('index.html', tasks=tasks)
+
+@app.route('/delete/<int:id>')
+def delete(id):
+    to_delete = ToDo.query.get_or_404(id)
+
+    try:
+        db.session.delete(to_delete)
+        db.session.commit()
+        return redirect('/')
+    except:
+        return "There was a problem"
