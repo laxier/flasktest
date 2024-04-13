@@ -28,3 +28,16 @@ def delete(id):
         return redirect('/')
     except:
         return "There was a problem"
+
+@app.route('/edit/<int:id>', methods=['POST', 'GET'])
+def edit(id):
+    task = ToDo.query.get_or_404(id)
+    if request.method == "POST":
+        task.content = request.form['updated']
+        try:
+            db.session.commit()
+            return redirect('/')
+        except:
+            return "There was a problem"
+    else:
+        return render_template('edit.html', task = task)
